@@ -34,7 +34,7 @@ def make_json_array(name, l):
 #print(make_json_array("likes", ["a", "b", "c"]))
 
 def makeUser(start, id, users, names):
-    likes = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    likes = list(map(lambda x: str(x), list(range(1, 9))))
     num_friends = random.randint(0, len(users) - 1)
     name = names[int(id) - start]
     friends = users[:num_friends]
@@ -46,20 +46,32 @@ def makeUser(start, id, users, names):
     like_l = likes[:num_likes]
     construction = "{\n\t" + "\"id\" : \"{}\",\n{},\n\t\"name\" : \"{}\",\n{}\n".format(
         id, make_json_array("friends", friends), name, make_json_array("likes",like_l)) + "}"
-    return construction
+    return construction    
 
-
-def makeDummies(num):
+def makeDummyUsers(num):
     alpha = "abcdefghijklmnopqrstuvwxyz"
     names = perm_gen_lex(alpha[:rev_factorial(num)])
-    with open("Desktop/jsondummies.json", 'w') as f:
+    with open("jsondummies_users.json", 'w') as f:
         ids = list(map(lambda x: str(x), list(range(514, 515 + num))))
-        totalStr = ''
+        totalStr = "{\n'Users':[\n"
         for i, id in enumerate(ids):
-            totalStr += makeUser(514, id, ids, names) + "\n\n"
-        #print(totalStr)
+            totalStr += makeUser(514, id, ids, names) + ",\n\n"
+        totalStr += "]\n}"
         f.write(totalStr)
-        f.write("Hello")
-    print('Done')
+        #print(totalStr)
+    print('Done Users')
 
-makeDummies(10)
+def makeDummyItems():
+    likes = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    with open("jsondummies_items.json", 'w') as f:
+        ids = list(map(lambda x: str(x), list(range(1, 9))))
+        totalStr = "{\n'Items': [\n"
+        for i, id in enumerate(ids):
+            idStr = "{" + "\n'id' : '{}',\n".format(id)
+            nameStr = "'item_name' : '{}'\n".format(likes[i]) + "},"
+            totalStr +=  idStr + nameStr + "\n\n"
+        f.write(totalStr + "]\n}")
+    print('Done Items')
+
+makeDummyUsers(10)
+makeDummyItems()
