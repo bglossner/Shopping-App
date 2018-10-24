@@ -1,7 +1,7 @@
 import mysql.connector as mariadb
 import json
 
-def connect_to_database(where="localhost", username="root", pwd="password", dbase="test"):
+def connect_to_database(where="localhost", username="bglossner", pwd="password", dbase="test"):
     try:
         mariadb_connection = mariadb.connect(host=where, user=username, password=pwd, database=dbase)
         return (mariadb_connection, mariadb_connection.cursor())
@@ -24,7 +24,7 @@ def insert_data_item(id, item_name):
     cursor = conn_obj[1]
     if not mariadb_connection or not cursor:
         return False
-    cursor.execute("insert into Users (id, item_name) values ({} {})".format(id, item_name))
+    cursor.execute("insert into Items (id, item_name) values ({} {})".format(id, item_name))
     print("Inserted Item ID: {} as {}".format(id, item_name))
     mariadb_connection.close()
 
@@ -59,26 +59,30 @@ def insert_data_friend(userid, friendid):
     mariadb_connection.close()
 
 def insert_full_dataset(filename):
-    with open(filename, 'r') as data:
-        json_parse = json.loads(data)
-        users_rec = json_parse["Users"]
-        items_rec = json_parse["Items"]
-        friends_inserted = []
-        for value in items_rec:
-            insert_data_item(value["id"], value["item_name"])
-        for i, value in enumerate(users_rec):
-            insert_data_user(value["id"], value["username"])
-            likes = value["likes"]
-            buys = value["buys"]
-            friends = value["friends"]
-            for item in likes:
-                insert_data_like(value["id"], item)
-            for item in buys:
-                insert_data_bought(value["id"], item)
-            for friend in friends:
-                id1 = friend
-                id2 = value["id"]
-                sortedIds = (min(id1, id2), max(id1, id2))
-                if sortedIds not in friends_inserted:
-                    insert_data_friend(sortedIds[0], sortedIds[1])
-                    friends_inserted.append(sortedIds)
+     with open(filename1, 'r') as data:
+        with open(filename2, 'r') as data2:
+            json_parse1 = json.loads(data)
+            json_parse2 = json.loads(data2)
+            users_rec = json_parse1["Users"]
+            items_rec = json_parse2["Items"]
+            friends_inserted = []
+            for value in items_rec:
+                insert_data_item(value["id"], value["item_name"])
+            for i, value in enumerate(users_rec):
+                insert_data_user(value["id"], value["username"])
+                likes = value["likes"]
+                buys = value["buys"]
+                friends = value["friends"]
+                for item in likes:
+                    insert_data_like(value["id"], item)
+                for item in buys:
+                    insert_data_bought(value["id"], item)
+                for friend in friends:
+                    id1 = friend
+                    id2 = value["id"]
+                    sortedIds = (min(id1, id2), max(id1, id2))
+                    if sortedIds not in friends_inserted:
+                        insert_data_friend(sortedIds[0], sortedIds[1])
+                        friends_inserted.append(sortedIds)
+
+insert_full_dataset("jsondummies_users.json", "jsondummies_items.json")
