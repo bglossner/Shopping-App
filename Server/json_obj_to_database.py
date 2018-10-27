@@ -1,7 +1,7 @@
 import mysql.connector as mariadb
 import json
 
-def connect_to_database(where="localhost", username="bglossner", pwd="password", dbase="test"):
+def connect_to_database(where="localhost", username="appdev", pwd="password", dbase="test"):
     try:
         mariadb_connection = mariadb.connect(host=where, user=username, password=pwd, database=dbase)
         return (mariadb_connection, mariadb_connection.cursor())
