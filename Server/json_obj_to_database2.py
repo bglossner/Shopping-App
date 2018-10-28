@@ -14,7 +14,7 @@ def insert_data_user(id, user):
     cursor = conn_obj[1]
     if not mariadb_connection or not cursor:
         return False
-    cursor.execute("insert into Users (id, username) values ('{}', '{}')".format(id, user))
+    cursor.execute("insert into Users (user_id, username) values ('{}', '{}')".format(id, user))
     print("Inserted User ID: {} as {}".format(id, user))
     mariadb_connection.commit()
     mariadb_connection.close()
@@ -25,7 +25,7 @@ def insert_data_item(id, item_name):
     cursor = conn_obj[1]
     if not mariadb_connection or not cursor:
         return False
-    cursor.execute("insert into Items (id, item_name) values ('{}', '{}')".format(id, item_name))
+    cursor.execute("insert into Items (item_id, item_name) values ('{}', '{}')".format(id, item_name))
     print("Inserted Item ID: {} as {}".format(id, item_name))
     mariadb_connection.commit()
     mariadb_connection.close()
