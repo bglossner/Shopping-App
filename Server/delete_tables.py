@@ -4,7 +4,7 @@ def delete_table(table_name):
     mariadb_connection = mariadb.connect(host="localhost", user="appdev", password="password", database="test")
     cursor = mariadb_connection.cursor()
 #     user_input = str(input("Are you sure you'd like to delete %s (Y or N) " % table_name)).lower()
-    if True or user_input == "y" or user_input == "yes":
+    if user_input == "y" or user_input == "yes":
         cursor.execute("drop table {}".format(table_name))
 
 def delete_shopping_tables():
@@ -12,4 +12,5 @@ def delete_shopping_tables():
     for table in table_names:
         delete_table(table)
 
-delete_shopping_tables()
+if __name__ == "main":
+        delete_shopping_tables()
