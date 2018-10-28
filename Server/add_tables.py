@@ -11,5 +11,5 @@ def add_tables():
     cursor.execute("CREATE TABLE Friends (user_id varchar(10), friend_id varchar(10))")
     cursor.execute("CREATE TABLE Reviews (user_id varchar(10), item_id varchar(10), review text)")
 
-if __name__ == "main":
+if __name__ == "__main__":
     add_tables()
