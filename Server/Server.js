@@ -62,26 +62,16 @@ app.get('/users', (req, res) => {
 
 })
 
-function test() {
-    connection.query('SELECT friend_id from Friends WHERE user_id=' + userId, (err, result, fields) => {
-        if (err) {
-            console.log(err)
-        }
-        result.forEach((item) => {
-            friendIds.push(item.friend_id)
-    })
-})
-    console.log(friendIds)
-}
+
 
 function test() {
     let friendIs = []
-    connection.query('SELECT friend_id from Friends WHERE user_id=' + 518, (err, result, fields) => {
+    connection.query('SELECT follower_id from Followers WHERE user_id=' + 518, (err, result, fields) => {
         if (err) {
             console.log(err)
         }
         result.forEach((item) => {
-            friendIs.push(item)
+            friendIs.push(item.follower_id)
         })
         console.log(friendIs)
     })
