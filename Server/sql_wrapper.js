@@ -76,11 +76,81 @@ function getFollowersFromId(connection, user_id, limit) {
     }));
     return users;
 }
+function getBoughtItems(connection, user_id, limit){
+    // shows all the items bought by the user
+    if(limit == -1) {
+        var myQuery = `SELECT BoughtItems.item_id, Items.item_name FROM BoughtItems 
+        INNER JOIN Items ON BoughtItems.item_id = Items.item_id WHERE BoughtItems.user_id = ${user_id}`;
+    }
+    else {
+        var myQuery = `SELECT BoughtItems.item_id, Items.item_name FROM BoughtItems 
+        INNER JOIN Items ON BoughtItems.item_id = Items.item_id WHERE BoughtItems.user_id = ${user_id} 
+        LIMIT ${limit}`;
+    }
+    
+    
+    let boughtItems =  new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+          if (err){
+              reject(err);
+          }
+          else{
+            let boughtItemsArr = [];
+            for(let element of result) {
+                let boughtItem = {
+                    "item_id" : element.item_id,
+                    "item_name" : element.item_name
+                };
+                boughtItemsArr.push(boughtItem);
+            }
+            resolve(boughtItems);
+            console.log(boughtItemsArr);
+          }
+        }))
+        .then(token => {console.log("Done")})
+        .catch(error => console.log(error));
+    return boughtItems
+}
+
+function getLikedItems(connection, user_id, limit){
+    // shows all the items likes by the user
+    if(limit == -1) {
+        var myQuery = `SELECT LikedItems.item_id, Items.item_name FROM LikedItems 
+        INNER JOIN Items ON LikedItems.item_id = Items.item_id WHERE LikedItems.user_id = ${user_id}`;
+    }
+    else {
+        var myQuery = `SELECT LikedItems.item_id, Items.item_name FROM LikedItems 
+        INNER JOIN Items ON LikedItems.item_id = Items.item_id WHERE LikedItems.user_id = ${user_id} 
+        LIMIT ${limit}`;
+    }
+    
+    
+    let likedItems =  new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+          if (err){
+              reject(err);
+          }
+          else{
+            let likedItemsArr = [];
+            for(let element of result) {
+                let likedItem = {
+                    "item_id" : element.item_id,
+                    "item_name" : element.item_name
+                };
+                likedItemsArr.push(likedItem);
+            }
+            resolve(likedItems);
+            console.log(likedItemsArr);
+          }
+        }))
+        .then(token => {console.log("Done")})
+        .catch(error => console.log(error));
+    return likedItems
+}
+
 
 function getAllUserInfo(connection, user_id) {
     let prom = new Promise((resolve, reject) =>
         getUsersFromIDs(connection, user_id, 1).then((user_obj) => {
-            if (err) {
+            if (false) {
                 reject(err);
             }
             else {
@@ -132,18 +202,20 @@ function getFollowers(connection, user_id, limit) {
     });
 }
 
-getUsersAlphaBased(connection, user_id) {
+function getUser(connection, user_id) {
     getAllUserInfo(connection, user_id).then(function(result) {
         console.log("\n");
         console.log(result);
     });
 }
 
+getBoughtItems(connection, 518, -1)
+getLikedItems(connection, 518, -1)
 getUsersIDBased(connection, 514, 6);
 getUsersAlphaBased(connection, 514, 6);
 getUsersAlphaBased(connection, 514, -1);
 getFollowers(connection, 514, -1);
 getFollowers(connection, 514, 2);
-getAllUserInfo(connection, 514);
+//getAllUserInfo(connection, 514);
 
 connection.end();

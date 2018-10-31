@@ -23,9 +23,6 @@ connection.connect((err) => {
 
     console.log('db connected')
 })
-console.log('working')
-test()
-
 app.get('/items', (req, res) => {
     let userId = req.params.userId
     let numItems = req.params.numItems
@@ -64,15 +61,77 @@ app.get('/users', (req, res) => {
 
 
 
-function test() {
-    let friendIs = []
-    connection.query('SELECT follower_id from Followers WHERE user_id=' + 518, (err, result, fields) => {
-        if (err) {
-            console.log(err)
-        }
-        result.forEach((item) => {
-            friendIs.push(item.follower_id)
-        })
-        console.log(friendIs)
-    })
+// function test() {
+//     let friendIs = []
+//     connection.query('SELECT follower_id from Followers WHERE user_id=' + 518, (err, result, fields) => {
+//         if (err) {
+//             console.log(err)
+//         }
+//         result.forEach((item) => {
+//             friendIs.push(item.follower_id)
+//         })
+//         console.log(friendIs)
+//     })
+// }
+
+function test(){
+    // shows all the items bought by the user
+    userID = 518
+    let items = []
+    const myQuery = "SELECT item_id from BoughtItems WHERE user_id =" + 518;
+    let results =  new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+          if (err){
+              reject(err);
+          }
+          result.forEach((item)=>{
+            let id = item.item_id
+            connection.query("SELECT item_name FROM Items WHERE item_id =" + id, (err, result, fields) => {
+                if (err){
+                    reject(err);
+                }
+                else{
+                    result.forEach((item)=>{
+                    newItem = {"item_id" : id, 
+                                "item_name": item.item_name}
+                    items.push(newItem)
+                    })
+            }
+        });
+          });
+        resolve(result)
+        }))
+        .then(token => {console.log("Done")})
+        .catch(error => console.log(error));
+    return items
 }
+
+// const items = test();
+// setTimeout(
+//     () => {
+//         console.log("Hello")
+//         console.log(items)
+//     }, 100
+// );
+
+
+
+function getBoughtItems(){
+    // shows all the items bought by the user
+    userID = 518
+    let items = []
+    const myQuery = "Select BoughtItems.item_id, Items.item_name from BoughtItems inner join Items on BoughtItems.item_id = Items.item_id WHERE BoughtItems.user_id = 518";
+    let results =  new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+          if (err){
+              reject(err);
+          }
+          else{
+              console.log(result)
+          }
+        resolve(result)
+        }))
+        .then(token => {console.log("Done")})
+        .catch(error => console.log(error));
+    return items
+}
+const items = getBoughtItems();
+
