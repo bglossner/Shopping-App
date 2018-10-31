@@ -76,5 +76,3 @@ function test() {
         console.log(friendIs)
     })
 }
-
-
