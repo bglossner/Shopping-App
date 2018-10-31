@@ -111,6 +111,41 @@ function getBoughtItems(connection, user_id, limit){
     return boughtItems
 }
 
+function getLikedItems(connection, user_id, limit){
+    // shows all the items likes by the user
+    if(limit == -1) {
+        var myQuery = `SELECT LikedItems.item_id, Items.item_name FROM LikedItems 
+        INNER JOIN Items ON LikedItems.item_id = Items.item_id WHERE LikedItems.user_id = ${user_id}`;
+    }
+    else {
+        var myQuery = `SELECT LikedItems.item_id, Items.item_name FROM LikedItems 
+        INNER JOIN Items ON LikedItems.item_id = Items.item_id WHERE LikedItems.user_id = ${user_id} 
+        LIMIT ${limit}`;
+    }
+    
+    
+    let likedItems =  new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+          if (err){
+              reject(err);
+          }
+          else{
+            let likedItemsArr = [];
+            for(let element of result) {
+                let likedItem = {
+                    "item_id" : element.item_id,
+                    "item_name" : element.item_name
+                };
+                likedItemsArr.push(likedItem);
+            }
+            resolve(likedItems);
+            console.log(likedItemsArr);
+          }
+        }))
+        .then(token => {console.log("Done")})
+        .catch(error => console.log(error));
+    return likedItems
+}
+
 
 var connection = mysql.createConnection({
     host     : 'localhost',
@@ -139,6 +174,7 @@ function getFollowers(connection, id, limit) {
     });
 }
 getBoughtItems(connection, 518, -1)
+getLikedItems(connection, 518, -1)
 getUsersIDBased(connection, 514, 6);
 getUsersAlphaBased(connection, 514, 6);
 getUsersAlphaBased(connection, 514, -1);
