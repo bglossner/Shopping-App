@@ -120,7 +120,6 @@ function getBoughtItems(){
     userID = 518
     let items = []
     const myQuery = "Select BoughtItems.item_id, Items.item_name from BoughtItems inner join Items on BoughtItems.item_id = Items.item_id WHERE BoughtItems.user_id = 518";
-    // const myQuery = "SELECT item_id from BoughtItems WHERE user_id =" + 518;
     let results =  new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
           if (err){
               reject(err);
@@ -135,17 +134,4 @@ function getBoughtItems(){
     return items
 }
 const items = getBoughtItems();
-// setTimeout(
-//     () => {
-//         console.log("Hello")
-//         console.log(items)
-//     }, 100
-// );
-// test2()
 
-
-
-
-
-// console.log(test())
-// connection.end()
