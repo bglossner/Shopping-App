@@ -1,13 +1,13 @@
 const mysql = require('mysql')
 
-function getUsersFromIDs(connection, start, limit) {
+async function getUsersFromIDs(connection, start, limit) {
+    let users = [];
     const myQuery = `SELECT * FROM Users WHERE user_id > ${start - 1} LIMIT ${limit}`;
-    let users = new Promise((resolve, reject) => connection.query(myQuery, (err, result, fields) => {
+    await new Promise((resolve, reject) => connection.query(myQuery, (err, result, fields) => {
         if (err) {
             reject(err);
         }
         else {
-            let users = [];
             for(let element of result) {
                 let userRet = {
                     "user_id" : element.user_id,
@@ -21,7 +21,8 @@ function getUsersFromIDs(connection, start, limit) {
     return users;
 }
 
-function getUsersFromAlpha(connection, start, limit) {
+async function getUsersFromAlpha(connection, start, limit) {
+    let users = [];
     if(limit == -1) {
         var myQuery = `SELECT * FROM Users GROUP BY username`;
     }
@@ -29,12 +30,11 @@ function getUsersFromAlpha(connection, start, limit) {
         var myQuery = `SELECT * FROM Users GROUP BY username LIMIT ${limit}`;
     }
     
-    let users = new Promise((resolve, reject) => connection.query(myQuery, (err, result, fields) => {
+    await new Promise((resolve, reject) => connection.query(myQuery, (err, result, fields) => {
         if (err) {
             reject(err);
         }
         else {
-            let users = [];
             for(let element of result) {
                 let userRet = {
                     "user_id" : element.user_id,
@@ -48,22 +48,22 @@ function getUsersFromAlpha(connection, start, limit) {
     return users;
 }
 
-function getFollowersFromId(connection, id, limit) {
+async function getFollowersFromId(connection, user_id, limit) {
+    let users = [];
     if(limit == -1) {
         var myQuery = `SELECT Users.user_id, username FROM Users INNER JOIN Followers ON 
-                        Followers.follower_id = Users.user_id WHERE Followers.user_id = ${id}`;
+                        Followers.follower_id = Users.user_id WHERE Followers.user_id = ${user_id}`;
     }
     else {
         var myQuery = `SELECT Users.user_id, username FROM Users INNER JOIN Followers ON 
-                        Followers.follower_id = Users.user_id WHERE Followers.user_id = ${id} LIMIT ${limit}`;
+                        Followers.follower_id = Users.user_id WHERE Followers.user_id = ${user_id} LIMIT ${limit}`;
     }
     
-    let users = new Promise((resolve, reject) => connection.query(myQuery, (err, result, fields) => {
+    await new Promise((resolve, reject) => connection.query(myQuery, (err, result, fields) => {
         if (err) {
             reject(err);
         }
         else {
-            let users = [];
             for(let element of result) {
                 let userRet = {
                     "user_id" : element.user_id,
@@ -79,7 +79,7 @@ function getFollowersFromId(connection, id, limit) {
 
 async function getBoughtItems(connection, user_id, limit){
     // shows all the items bought by the user
-    let boughtItemsArr = [];
+    let boughtItems = [];
     if(limit == -1) {
         var myQuery = `SELECT BoughtItems.item_id, Items.item_name FROM BoughtItems 
         INNER JOIN Items ON BoughtItems.item_id = Items.item_id WHERE BoughtItems.user_id = ${user_id}`;
@@ -102,19 +102,17 @@ async function getBoughtItems(connection, user_id, limit){
                     "item_id" : element.item_id,
                     "item_name" : element.item_name
                 };
-                boughtItemsArr.push(boughtItem);
+                boughtItems.push(boughtItem);
             }
             resolve(result);
-            // console.log(boughtItemsArr);
           }
         }));
-        // .then(token => {})
-        // .catch(error => console.log(error));
-        return boughtItemsArr;
+        return boughtItems;
 }
 
-function getLikedItems(connection, user_id, limit){
+async function getLikedItems(connection, user_id, limit){
     // shows all the items likes by the user
+    let likedItems = [];
     if(limit == -1) {
         var myQuery = `SELECT LikedItems.item_id, Items.item_name FROM LikedItems 
         INNER JOIN Items ON LikedItems.item_id = Items.item_id WHERE LikedItems.user_id = ${user_id}`;
@@ -126,28 +124,49 @@ function getLikedItems(connection, user_id, limit){
     }
     
     
-    let likedItems =  new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+    await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
           if (err){
               reject(err);
           }
           else{
-            let likedItemsArr = [];
             for(let element of result) {
                 let likedItem = {
                     "item_id" : element.item_id,
                     "item_name" : element.item_name
                 };
-                likedItemsArr.push(likedItem);
+                likedItems.push(likedItem);
             }
-            resolve(likedItems);
-            console.log(likedItemsArr);
+            resolve(result);
           }
         }))
-        .then(token => {console.log("Done")})
-        .catch(error => console.log(error));
     return likedItems
 }
 
+
+async function getAllUserInfo(connection, user_id) {
+    let userObject;
+    await new Promise((resolve, reject) =>
+        getUsersFromIDs(connection, user_id, 1).then((users) => {
+            let user = users[0];
+            getFollowersFromId(connection, user_id, -1).then((followers) => {
+                getBoughtItems(connection, user_id, -1).then((boughtItems) => {
+                    getLikedItems(connection, user_id, -1).then((likedItems) => {
+                        resolve(users);
+                        userObject = {
+                            "user_id" : user["user_id"],
+                            "username" : user["username"],
+                            "followers" : followers,
+                            "bought_items" : boughtItems,
+                            "liked_items" : likedItems
+                        }
+                    });
+                });
+            });
+        }
+    ));
+
+    return userObject;
+}
 
 var connection = mysql.createConnection({
     host     : 'localhost',
@@ -169,19 +188,47 @@ function getUsersAlphaBased(connection, start, limit) {
     });
 }
 
-function getFollowers(connection, id, limit) {
-    getFollowersFromId(connection, id, limit).then(function(result) {
+function getFollowers(connection, user_id, limit) {
+    getFollowersFromId(connection, user_id, limit).then(function(result) {
         console.log("\n");
         console.log(result);
     });
 }
-getBoughtItems(connection, 518, -1).then((result) =>{
-    console.log(result)
-})
-getLikedItems(connection, 518, -1)
-getUsersIDBased(connection, 514, 6);
-getUsersAlphaBased(connection, 514, 6);
-getUsersAlphaBased(connection, 514, -1);
-getFollowers(connection, 514, -1);
 
-connection.end();
+function getUser(connection, user_id) {
+    getAllUserInfo(connection, user_id).then(function(result) {
+        console.log("\n");
+        console.log(result);
+    });
+}
+
+
+// TESTING STUFF BELOW
+getBoughtItems(connection, 518, -1).then((result) => {
+    console.log("This is the BOUGHT ITEMS array")
+    console.log(result);
+});
+getLikedItems(connection, 518, -1).then((result) => {
+    console.log("This is the LIKED ITEMS array")
+    console.log(result);
+});
+getUsersFromIDs(connection, 514, 6).then((result) => {
+    console.log("This is the USERS FROM IDs array")
+    console.log(result);
+});
+getUsersFromAlpha(connection, 514, 6).then((result) => {
+    console.log("This is the USERS FROM ALPHA array")
+    console.log(result);
+});
+// getUsersAlphaBased(connection, 514, -1);
+getFollowersFromId(connection, 514, -1).then((result) => {
+    console.log("This is the FOLLOWERS FROM IDs array")
+    console.log(result);
+});
+// getFollowers(connection, 514, 2);
+getAllUserInfo(connection, 514).then((result) => {
+    console.log("This is the ALL USER INFO array")
+    console.log(result);
+    connection.end();
+});
+
