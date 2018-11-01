@@ -150,27 +150,22 @@ function getLikedItems(connection, user_id, limit){
 function getAllUserInfo(connection, user_id) {
     let prom = new Promise((resolve, reject) =>
         getUsersFromIDs(connection, user_id, 1).then((user_obj) => {
-            if (false) {
-                reject(err);
-            }
-            else {
-                let userObj = user_obj[0];
-                getFollowersFromId(connection, user_id, -1).then((followers) => {
-                    getBoughtItems(connection, user_id, -1).then((bitems) => {
-                        getLikedItems(connection, user_id, -1).then((litems) => {
-                            resolve({
-                                "user_id" : userObj["user_id"],
-                                "username" : userObj["username"],
-                                "followers" : followers,
-                                "bought_items" : bitems,
-                                "liked_items" : litems
-                            });
+            let userObj = user_obj[0];
+            getFollowersFromId(connection, user_id, -1).then((followers) => {
+                getBoughtItems(connection, user_id, -1).then((bitems) => {
+                    getLikedItems(connection, user_id, -1).then((litems) => {
+                        resolve({
+                            "user_id" : userObj["user_id"],
+                            "username" : userObj["username"],
+                            "followers" : followers,
+                            "bought_items" : bitems,
+                            "liked_items" : litems
                         });
                     });
                 });
-            }
-        })
-    );
+            });
+        }
+    ));
 
     return prom;
 }
@@ -216,6 +211,8 @@ getUsersAlphaBased(connection, 514, 6);
 getUsersAlphaBased(connection, 514, -1);
 getFollowers(connection, 514, -1);
 getFollowers(connection, 514, 2);
-//getAllUserInfo(connection, 514);
+getAllUserInfo(connection, 514).then((result) => {
+    console.log(result);
+});
 
-connection.end();
+// connection.end();
