@@ -76,8 +76,10 @@ function getFollowersFromId(connection, id, limit) {
     }));
     return users;
 }
-function getBoughtItems(connection, user_id, limit){
+
+async function getBoughtItems(connection, user_id, limit){
     // shows all the items bought by the user
+    let boughtItemsArr = [];
     if(limit == -1) {
         var myQuery = `SELECT BoughtItems.item_id, Items.item_name FROM BoughtItems 
         INNER JOIN Items ON BoughtItems.item_id = Items.item_id WHERE BoughtItems.user_id = ${user_id}`;
@@ -89,12 +91,12 @@ function getBoughtItems(connection, user_id, limit){
     }
     
     
-    let boughtItems =  new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+    await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
           if (err){
               reject(err);
           }
           else{
-            let boughtItemsArr = [];
+            
             for(let element of result) {
                 let boughtItem = {
                     "item_id" : element.item_id,
@@ -102,13 +104,13 @@ function getBoughtItems(connection, user_id, limit){
                 };
                 boughtItemsArr.push(boughtItem);
             }
-            resolve(boughtItems);
-            console.log(boughtItemsArr);
+            resolve(result);
+            // console.log(boughtItemsArr);
           }
-        }))
-        .then(token => {console.log("Done")})
-        .catch(error => console.log(error));
-    return boughtItems
+        }));
+        // .then(token => {})
+        // .catch(error => console.log(error));
+        return boughtItemsArr;
 }
 
 function getLikedItems(connection, user_id, limit){
@@ -173,7 +175,9 @@ function getFollowers(connection, id, limit) {
         console.log(result);
     });
 }
-getBoughtItems(connection, 518, -1)
+getBoughtItems(connection, 518, -1).then((result) =>{
+    console.log(result)
+})
 getLikedItems(connection, 518, -1)
 getUsersIDBased(connection, 514, 6);
 getUsersAlphaBased(connection, 514, 6);
