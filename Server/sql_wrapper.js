@@ -231,14 +231,14 @@ async function getMostBoughtItems(connection, limit){
 
 async function getNumberOfLikes(connection, item_id) {
     let numOfLikes = 0
-    const myQuery = `SELECT COUNT(*) FROM LikedItems WHERE item_id = ${item_id}`;
+    const myQuery = `SELECT COUNT(*) as count FROM LikedItems WHERE item_id = ${item_id}`;
 
     await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
         if (err) {
             reject(err);
         }
         else {
-            numOfLikes = result[0];
+            numOfLikes = result[0].count;
             resolve(result);
         }
     }));
@@ -247,14 +247,14 @@ async function getNumberOfLikes(connection, item_id) {
 
 async function getNumberOfBuys(connection, item_id) {
     let numOfBuys = 0
-    const myQuery = `SELECT COUNT(*) FROM BoughtItems WHERE item_id = ${item_id}`;
+    const myQuery = `SELECT COUNT(*) as count FROM BoughtItems WHERE item_id = ${item_id}`;
 
     await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
         if (err) {
             reject(err);
         }
         else {
-            numOfBuys = result[0];
+            numOfBuys = result[0].count;
             resolve(result);
         }
     }));
@@ -322,7 +322,7 @@ getNumberOfLikes(connection, 1).then((result) => {
     console.log("This is the NUMBER OF LIKES OF an ITEM");
     console.log(result);
 });
-getNumberOfBuys(connection, 1).then((result) => {
+getNumberOfBuys(connection, 2).then((result) => {
     console.log("This is the NUMBER OF BUYS OF an ITEM");
     console.log(result);
 });
