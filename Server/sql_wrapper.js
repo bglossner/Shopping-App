@@ -168,65 +168,98 @@ async function getAllUserInfo(connection, user_id) {
 }
 
 async function getMostLikedItems(connection, limit){
-    // shows all the items likes by the user
+    // shows ITEMID, ITEMNAME, NUMBEROFLIKES
     let likedItems = [];
-    if(limit == -1) {
-        var myQuery = `SELECT Items.item_id, Items.item_name FROM Items INNER JOIN LikedItems
-        ON Items.item_id = LikedItems.item_id ORDER BY COUNT(LikedItems.item_id) LIMIT ${limit}`;
+    if(limit != -1) {
+        var myQuery = `SELECT Items.item_id, Items.item_name, COUNT(*) as count FROM Items INNER JOIN LikedItems 
+        ON LikedItems.item_id=Items.item_id GROUP BY item_id ORDER BY COUNT(*) DESC LIMIT ${limit}`;
     }
     else {
-        var myQuery = `SELECT Items.item_id, Items.item_name FROM Items INNER JOIN LikedItems
-        ON Items.item_id = LikedItems.item_id ORDER BY COUNT(LikedItems.item_id)`;
+        var myQuery = `SELECT Items.item_id, Items.item_name, COUNT(*) as count FROM Items INNER JOIN LikedItems 
+        ON LikedItems.item_id=Items.item_id GROUP BY item_id ORDER BY COUNT(*) DESC`;
     }
     
     await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
-          if (err){
-              reject(err);
-          }
-          else{
+        if (err){
+            reject(err);
+        }
+        else{
             for(let element of result) {
                 let likedItem = {
                     "item_id" : element.item_id,
-                    "item_name" : element.item_name
+                    "item_name" : element.item_name,
+                    "count" : element.count
                 };
                 likedItems.push(likedItem);
             }
             resolve(result);
-          }
-        }))
-    return likedItems
+        }
+    }));
+    return likedItems;
 }
 
 async function getMostBoughtItems(connection, limit){
-    // shows all the items likes by the user
+    // shows ITEMID, ITEMNAME, NUMBEROFLIKES
     let boughtItems = [];
-    if(limit == -1) {
-        var myQuery = `SELECT Items.item_id, Items.item_name FROM Items INNER JOIN BoughtItems
-        ON Items.item_id = BoughtItems.item_id ORDER BY COUNT(BoughtItems.item_id) LIMIT ${limit}`;
+    if(limit != -1) {
+        var myQuery = `SELECT Items.item_id, Items.item_name, COUNT(*) as count FROM Items INNER JOIN BoughtItems 
+        ON BoughtItems.item_id=Items.item_id GROUP BY item_id ORDER BY COUNT(*) DESC LIMIT ${limit}`;
     }
     else {
-        var myQuery = `SELECT Items.item_id, Items.item_name FROM Items INNER JOIN BoughtItems
-        ON Items.item_id = BoughtItems.item_id ORDER BY COUNT(BoughtItems.item_id)`;
+        var myQuery = `SELECT Items.item_id, Items.item_name, COUNT(*) as count FROM Items INNER JOIN BoughtItems 
+        ON BoughtItems.item_id=Items.item_id GROUP BY item_id ORDER BY COUNT(*) DESC`;
     }
     
     await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
-          if (err){
-              reject(err);
-          }
-          else{
+        if (err){
+            reject(err);
+        }
+        else{
             for(let element of result) {
                 let boughtItem = {
                     "item_id" : element.item_id,
-                    "item_name" : element.item_name
+                    "item_name" : element.item_name,
+                    "count" : element.count
                 };
                 boughtItems.push(boughtItem);
             }
             resolve(result);
-          }
-        }))
-    return boughtItems
+        }
+    }));
+    return boughtItems;
 }
 
+async function getNumberOfLikes(connection, item_id) {
+    let numOfLikes = 0
+    const myQuery = `SELECT COUNT(*) FROM LikedItems WHERE item_id = ${item_id}`;
+
+    await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+        if (err) {
+            reject(err);
+        }
+        else {
+            numOfLikes = result[0];
+            resolve(result);
+        }
+    }));
+    return numOfLikes;
+}
+
+async function getNumberOfBuys(connection, item_id) {
+    let numOfBuys = 0
+    const myQuery = `SELECT COUNT(*) FROM BoughtItems WHERE item_id = ${item_id}`;
+
+    await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+        if (err) {
+            reject(err);
+        }
+        else {
+            numOfBuys = result[0];
+            resolve(result);
+        }
+    }));
+    return numOfBuys;
+}
 
 var connection = mysql.createConnection({
     host     : 'localhost',
@@ -283,6 +316,22 @@ getUsersFromAlpha(connection, 514, 6).then((result) => {
 // getUsersAlphaBased(connection, 514, -1);
 getFollowersFromId(connection, 514, -1).then((result) => {
     console.log("This is the FOLLOWERS FROM IDs array")
+    console.log(result);
+});
+getNumberOfLikes(connection, 1).then((result) => {
+    console.log("This is the NUMBER OF LIKES OF an ITEM");
+    console.log(result);
+});
+getNumberOfBuys(connection, 1).then((result) => {
+    console.log("This is the NUMBER OF BUYS OF an ITEM");
+    console.log(result);
+});
+getMostLikedItems(connection, -1).then((result) => {
+    console.log("This is the MOST LIKED ITEMS array")
+    console.log(result);
+});
+getMostBoughtItems(connection, -1).then((result) => {
+    console.log("This is the MOST BOUGHT ITEMS array")
     console.log(result);
 });
 // getFollowers(connection, 514, 2);
