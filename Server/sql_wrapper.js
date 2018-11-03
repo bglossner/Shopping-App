@@ -142,7 +142,6 @@ async function getLikedItems(connection, user_id, limit){
     return likedItems
 }
 
-
 async function getAllUserInfo(connection, user_id) {
     let userObject;
     await new Promise((resolve, reject) =>
@@ -167,6 +166,67 @@ async function getAllUserInfo(connection, user_id) {
 
     return userObject;
 }
+
+async function getMostLikedItems(connection, limit){
+    // shows all the items likes by the user
+    let likedItems = [];
+    if(limit == -1) {
+        var myQuery = `SELECT Items.item_id, Items.item_name FROM Items INNER JOIN LikedItems
+        ON Items.item_id = LikedItems.item_id ORDER BY COUNT(LikedItems.item_id) LIMIT ${limit}`;
+    }
+    else {
+        var myQuery = `SELECT Items.item_id, Items.item_name FROM Items INNER JOIN LikedItems
+        ON Items.item_id = LikedItems.item_id ORDER BY COUNT(LikedItems.item_id)`;
+    }
+    
+    await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+          if (err){
+              reject(err);
+          }
+          else{
+            for(let element of result) {
+                let likedItem = {
+                    "item_id" : element.item_id,
+                    "item_name" : element.item_name
+                };
+                likedItems.push(likedItem);
+            }
+            resolve(result);
+          }
+        }))
+    return likedItems
+}
+
+async function getMostBoughtItems(connection, limit){
+    // shows all the items likes by the user
+    let boughtItems = [];
+    if(limit == -1) {
+        var myQuery = `SELECT Items.item_id, Items.item_name FROM Items INNER JOIN BoughtItems
+        ON Items.item_id = BoughtItems.item_id ORDER BY COUNT(BoughtItems.item_id) LIMIT ${limit}`;
+    }
+    else {
+        var myQuery = `SELECT Items.item_id, Items.item_name FROM Items INNER JOIN BoughtItems
+        ON Items.item_id = BoughtItems.item_id ORDER BY COUNT(BoughtItems.item_id)`;
+    }
+    
+    await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+          if (err){
+              reject(err);
+          }
+          else{
+            for(let element of result) {
+                let boughtItem = {
+                    "item_id" : element.item_id,
+                    "item_name" : element.item_name
+                };
+                boughtItems.push(boughtItem);
+            }
+            resolve(result);
+          }
+        }))
+    return boughtItems
+}
+
 
 var connection = mysql.createConnection({
     host     : 'localhost',
@@ -231,4 +291,3 @@ getAllUserInfo(connection, 514).then((result) => {
     console.log(result);
     connection.end();
 });
-
