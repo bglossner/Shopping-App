@@ -1,10 +1,16 @@
 const mysql = require('mysql')
 
-module.exports = { 
-    getUsersFromIDs: async function (connection, start, limit) {
+module.exports = class DataAccess {
+
+    // Host, user, password, database
+    constructor (connectionOptions) {
+        this._connection = mysql.createConnection(connectionOptions);
+    }
+
+    async getUsersFromIDs(start, limit) {
         let users = [];
         const myQuery = `SELECT * FROM Users WHERE user_id > ${start - 1} LIMIT ${limit}`;
-        await new Promise((resolve, reject) => connection.query(myQuery, (err, result, fields) => {
+        await new Promise((resolve, reject) => this._connection.query(myQuery, (err, result, fields) => {
             if (err) {
                 reject(err);
             }
@@ -19,10 +25,12 @@ module.exports = {
                 resolve(users);
             }
         }));
+        
         return users;
-    },
+    }
 
-    getUsersFromAlpha: async function (connection, start, limit) {
+    async getUsersFromAlpha(start, limit) {
+        
         let users = [];
         if(limit == -1) {
             var myQuery = `SELECT * FROM Users GROUP BY username`;
@@ -31,7 +39,7 @@ module.exports = {
             var myQuery = `SELECT * FROM Users GROUP BY username LIMIT ${limit}`;
         }
         
-        await new Promise((resolve, reject) => connection.query(myQuery, (err, result, fields) => {
+        await new Promise((resolve, reject) => this._connection.query(myQuery, (err, result, fields) => {
             if (err) {
                 reject(err);
             }
@@ -46,10 +54,12 @@ module.exports = {
                 resolve(users);
             }
         }));
+        
         return users;
-    },
+    }
 
-    getFollowersFromId: async function (connection, user_id, limit) {
+    async getFollowersFromId(user_id, limit) {
+        
         let users = [];
         if(limit == -1) {
             var myQuery = `SELECT Users.user_id, username FROM Users INNER JOIN Followers ON 
@@ -60,7 +70,7 @@ module.exports = {
                             Followers.follower_id = Users.user_id WHERE Followers.user_id = ${user_id} LIMIT ${limit}`;
         }
         
-        await new Promise((resolve, reject) => connection.query(myQuery, (err, result, fields) => {
+        await new Promise((resolve, reject) => this._connection.query(myQuery, (err, result, fields) => {
             if (err) {
                 reject(err);
             }
@@ -75,10 +85,12 @@ module.exports = {
                 resolve(users);
             }
         }));
+        
         return users;
-    },
+    }
 
-    getBoughtItems: async function (connection, user_id, limit) {
+    async getBoughtItems(user_id, limit) {
+        
         // shows all the items bought by the user
         let boughtItems = [];
         if(limit == -1) {
@@ -92,11 +104,11 @@ module.exports = {
         }
         
         
-        await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+        await new Promise((resolve, reject) => this._connection.query(myQuery, (err, result) => {
             if (err){
                 reject(err);
             }
-            else{
+            else {
                 for(let element of result) {
                     let boughtItem = {
                         "item_id" : element.item_id,
@@ -106,11 +118,13 @@ module.exports = {
                 }
                 resolve(result);
             }
-            }));
-            return boughtItems;
-    },
+        }));
+        
+        return boughtItems;
+    }
 
-    getLikedItems: async function (connection, user_id, limit){
+    async getLikedItems(user_id, limit) {
+        
         // shows all the items likes by the user
         let likedItems = [];
         if(limit == -1) {
@@ -124,7 +138,7 @@ module.exports = {
         }
         
         
-        await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+        await new Promise((resolve, reject) => this._connection.query(myQuery, (err, result) => {
             if (err){
                 reject(err);
             }
@@ -138,18 +152,20 @@ module.exports = {
                 }
                 resolve(result);
             }
-            }))
-        return likedItems
-    },
+            }));
+        
+        return likedItems;
+    }
 
-    getAllUserInfo:  async function (connection, user_id) {
+    async getAllUserInfo(user_id) {
+        
         let userObject;
         await new Promise((resolve, reject) =>
-            getUsersFromIDs(connection, user_id, 1).then((users) => {
+            getUsersFromIDs(user_id, 1).then((users) => {
                 let user = users[0];
-                getFollowersFromId(connection, user_id, -1).then((followers) => {
-                    getBoughtItems(connection, user_id, -1).then((boughtItems) => {
-                        getLikedItems(connection, user_id, -1).then((likedItems) => {
+                getFollowersFromId(user_id, -1).then((followers) => {
+                    getBoughtItems(user_id, -1).then((boughtItems) => {
+                        getLikedItems(user_id, -1).then((likedItems) => {
                             resolve(users);
                             userObject = {
                                 "user_id" : user["user_id"],
@@ -163,11 +179,12 @@ module.exports = {
                 });
             }
         ));
-
+        
         return userObject;
-    },
+    }
 
-    getMostLikedItems: async function (connection, limit) {
+    async getMostLikedItems(limit) {
+        
         // shows ITEMID, ITEMNAME, NUMBEROFLIKES
         let likedItems = [];
         if(limit != -1) {
@@ -179,7 +196,7 @@ module.exports = {
             ON LikedItems.item_id=Items.item_id GROUP BY item_id ORDER BY COUNT(*) DESC`;
         }
         
-        await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+        await new Promise((resolve, reject) => this._connection.query(myQuery, (err, result) => {
             if (err){
                 reject(err);
             }
@@ -195,10 +212,12 @@ module.exports = {
                 resolve(result);
             }
         }));
+        
         return likedItems;
-    },
+    }
 
-    getMostBoughtItems: async function (connection, limit) {
+    async getMostBoughtItems(limit) {
+        
         // shows ITEMID, ITEMNAME, NUMBEROFLIKES
         let boughtItems = [];
         if(limit != -1) {
@@ -210,7 +229,7 @@ module.exports = {
             ON BoughtItems.item_id=Items.item_id GROUP BY item_id ORDER BY COUNT(*) DESC`;
         }
         
-        await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+        await new Promise((resolve, reject) => this._connection.query(myQuery, (err, result) => {
             if (err){
                 reject(err);
             }
@@ -226,14 +245,16 @@ module.exports = {
                 resolve(result);
             }
         }));
+        
         return boughtItems;
-    },
+    }
 
-    getNumberOfLikes: async function (connection, item_id) {
+    async getNumberOfLikes(item_id) {
+        
         let numOfLikes = 0
         const myQuery = `SELECT COUNT(*) as count FROM LikedItems WHERE item_id = ${item_id}`;
 
-        await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+        await new Promise((resolve, reject) => this._connection.query(myQuery, (err, result) => {
             if (err) {
                 reject(err);
             }
@@ -242,14 +263,16 @@ module.exports = {
                 resolve(result);
             }
         }));
+        
         return numOfLikes;
-    },
+    }
 
-    getNumberOfBuys: async function (connection, item_id) {
+    async getNumberOfBuys(item_id) {
+        
         let numOfBuys = 0
         const myQuery = `SELECT COUNT(*) as count FROM BoughtItems WHERE item_id = ${item_id}`;
 
-        await new Promise((resolve, reject) => connection.query(myQuery, (err, result) => {
+        await new Promise((resolve, reject) => this._connection.query(myQuery, (err, result) => {
             if (err) {
                 reject(err);
             }
@@ -258,33 +281,7 @@ module.exports = {
                 resolve(result);
             }
         }));
+        
         return numOfBuys;
     }
-};
-
-/*function getUsersIDBased(connection, start, limit) {
-    getUsersFromIDs(connection, start, limit).then(function(result) {
-        console.log(result);
-    });
 }
-
-function getUsersAlphaBased(connection, start, limit) {
-    getUsersFromAlpha(connection, start, limit).then(function(result) {
-        console.log("\n");
-        console.log(result);
-    });
-}
-
-function getFollowers(connection, user_id, limit) {
-    getFollowersFromId(connection, user_id, limit).then(function(result) {
-        console.log("\n");
-        console.log(result);
-    });
-}
-
-function getUser(connection, user_id) {
-    getAllUserInfo(connection, user_id).then(function(result) {
-        console.log("\n");
-        console.log(result);
-    });
-};*/

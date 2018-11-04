@@ -1,7 +1,12 @@
 const mysql = require('mysql')
 
-module.exports = { 
-    getUsersFromIDs: async function (connection, start, limit) {
+class DataAccess {
+
+    constructor (connection) {
+        this._connection = connection
+    }
+
+    async getUsersFromIDs(connection, start, limit) {
         let users = [];
         const myQuery = `SELECT * FROM Users WHERE user_id > ${start - 1} LIMIT ${limit}`;
         await new Promise((resolve, reject) => connection.query(myQuery, (err, result, fields) => {
@@ -20,9 +25,9 @@ module.exports = {
             }
         }));
         return users;
-    },
+    }
 
-    getUsersFromAlpha: async function (connection, start, limit) {
+    async getUsersFromAlpha(connection, start, limit) {
         let users = [];
         if(limit == -1) {
             var myQuery = `SELECT * FROM Users GROUP BY username`;
@@ -47,9 +52,9 @@ module.exports = {
             }
         }));
         return users;
-    },
+    }
 
-    getFollowersFromId: async function (connection, user_id, limit) {
+    async getFollowersFromId(connection, user_id, limit) {
         let users = [];
         if(limit == -1) {
             var myQuery = `SELECT Users.user_id, username FROM Users INNER JOIN Followers ON 
@@ -76,9 +81,9 @@ module.exports = {
             }
         }));
         return users;
-    },
+    }
 
-    getBoughtItems: async function (connection, user_id, limit) {
+    async getBoughtItems(connection, user_id, limit) {
         // shows all the items bought by the user
         let boughtItems = [];
         if(limit == -1) {
@@ -108,9 +113,9 @@ module.exports = {
             }
             }));
             return boughtItems;
-    },
+    }
 
-    getLikedItems: async function (connection, user_id, limit){
+    async getLikedItems(connection, user_id, limit){
         // shows all the items likes by the user
         let likedItems = [];
         if(limit == -1) {
@@ -140,9 +145,9 @@ module.exports = {
             }
             }))
         return likedItems
-    },
+    }
 
-    getAllUserInfo:  async function (connection, user_id) {
+    async getAllUserInfo(connection, user_id) {
         let userObject;
         await new Promise((resolve, reject) =>
             getUsersFromIDs(connection, user_id, 1).then((users) => {
@@ -165,9 +170,9 @@ module.exports = {
         ));
 
         return userObject;
-    },
+    }
 
-    getMostLikedItems: async function (connection, limit) {
+    async getMostLikedItems(connection, limit) {
         // shows ITEMID, ITEMNAME, NUMBEROFLIKES
         let likedItems = [];
         if(limit != -1) {
@@ -196,9 +201,9 @@ module.exports = {
             }
         }));
         return likedItems;
-    },
+    }
 
-    getMostBoughtItems: async function (connection, limit) {
+    async getMostBoughtItems(connection, limit) {
         // shows ITEMID, ITEMNAME, NUMBEROFLIKES
         let boughtItems = [];
         if(limit != -1) {
@@ -227,9 +232,9 @@ module.exports = {
             }
         }));
         return boughtItems;
-    },
+    }
 
-    getNumberOfLikes: async function (connection, item_id) {
+    async getNumberOfLikes(connection, item_id) {
         let numOfLikes = 0
         const myQuery = `SELECT COUNT(*) as count FROM LikedItems WHERE item_id = ${item_id}`;
 
@@ -243,9 +248,9 @@ module.exports = {
             }
         }));
         return numOfLikes;
-    },
+    }
 
-    getNumberOfBuys: async function (connection, item_id) {
+    async getNumberOfBuys(connection, item_id) {
         let numOfBuys = 0
         const myQuery = `SELECT COUNT(*) as count FROM BoughtItems WHERE item_id = ${item_id}`;
 
@@ -260,31 +265,4 @@ module.exports = {
         }));
         return numOfBuys;
     }
-};
-
-/*function getUsersIDBased(connection, start, limit) {
-    getUsersFromIDs(connection, start, limit).then(function(result) {
-        console.log(result);
-    });
 }
-
-function getUsersAlphaBased(connection, start, limit) {
-    getUsersFromAlpha(connection, start, limit).then(function(result) {
-        console.log("\n");
-        console.log(result);
-    });
-}
-
-function getFollowers(connection, user_id, limit) {
-    getFollowersFromId(connection, user_id, limit).then(function(result) {
-        console.log("\n");
-        console.log(result);
-    });
-}
-
-function getUser(connection, user_id) {
-    getAllUserInfo(connection, user_id).then(function(result) {
-        console.log("\n");
-        console.log(result);
-    });
-};*/

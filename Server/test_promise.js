@@ -2,7 +2,7 @@ const mysql = require('mysql');
 
 function getUsersFromIDs(connection, start, limit, callback) {
     const myQuery = `SELECT * FROM Users WHERE user_id > ${start - 1} LIMIT ${limit}`;
-    
+    connection.query()
     
 
 var connection = mysql.createConnection({
