@@ -9,7 +9,14 @@ module.exports = class DataAccess {
 
     async getUsersFromIDs(start, limit) {
         let users = [];
-        const myQuery = `SELECT * FROM Users WHERE user_id > ${start - 1} LIMIT ${limit}`;
+        let myQuery = ``;
+
+        if(limit == -1) {
+            myQuery = `SELECT * FROM Users WHERE user_id > ${start - 1}`;
+        }
+        else {
+            myQuery = `SELECT * FROM Users WHERE user_id > ${start - 1} LIMIT ${limit}`;
+        }
         await new Promise((resolve, reject) => this._connection.query(myQuery, (err, result, fields) => {
             if (err) {
                 reject(err);
@@ -30,7 +37,6 @@ module.exports = class DataAccess {
     }
 
     async getUsersFromAlpha(start, limit) {
-        
         let users = [];
         if(limit == -1) {
             var myQuery = `SELECT * FROM Users GROUP BY username`;
@@ -59,7 +65,6 @@ module.exports = class DataAccess {
     }
 
     async getFollowersFromId(user_id, limit) {
-        
         let users = [];
         if(limit == -1) {
             var myQuery = `SELECT Users.user_id, username FROM Users INNER JOIN Followers ON 
@@ -90,7 +95,6 @@ module.exports = class DataAccess {
     }
 
     async getBoughtItems(user_id, limit) {
-        
         // shows all the items bought by the user
         let boughtItems = [];
         if(limit == -1) {
@@ -124,7 +128,6 @@ module.exports = class DataAccess {
     }
 
     async getLikedItems(user_id, limit) {
-        
         // shows all the items likes by the user
         let likedItems = [];
         if(limit == -1) {
@@ -158,7 +161,6 @@ module.exports = class DataAccess {
     }
 
     async getAllUserInfo(user_id) {
-        
         let userObject;
         await new Promise((resolve, reject) =>
             getUsersFromIDs(user_id, 1).then((users) => {
@@ -184,7 +186,6 @@ module.exports = class DataAccess {
     }
 
     async getMostLikedItems(limit) {
-        
         // shows ITEMID, ITEMNAME, NUMBEROFLIKES
         let likedItems = [];
         if(limit != -1) {
@@ -217,7 +218,6 @@ module.exports = class DataAccess {
     }
 
     async getMostBoughtItems(limit) {
-        
         // shows ITEMID, ITEMNAME, NUMBEROFLIKES
         let boughtItems = [];
         if(limit != -1) {
@@ -250,7 +250,6 @@ module.exports = class DataAccess {
     }
 
     async getNumberOfLikes(item_id) {
-        
         let numOfLikes = 0
         const myQuery = `SELECT COUNT(*) as count FROM LikedItems WHERE item_id = ${item_id}`;
 
@@ -268,8 +267,7 @@ module.exports = class DataAccess {
     }
 
     async getNumberOfBuys(item_id) {
-        
-        let numOfBuys = 0
+        let numOfBuys = 0;
         const myQuery = `SELECT COUNT(*) as count FROM BoughtItems WHERE item_id = ${item_id}`;
 
         await new Promise((resolve, reject) => this._connection.query(myQuery, (err, result) => {
@@ -283,5 +281,40 @@ module.exports = class DataAccess {
         }));
         
         return numOfBuys;
+    }
+
+    async getItemsFromIDs(start, limit) {
+        let items = [];
+        let myQuery = ``;
+        console.log("HELLOO")
+        if(limit == -1) {
+            myQuery = `SELECT * FROM Items WHERE item_id >= ${start}`;
+        }
+        else {
+            myQuery = `SELECT * FROM Items WHERE item_id >= ${start} LIMIT ${limit}`;
+        }
+
+        await new Promise((resolve, reject) => this._connection.query(myQuery, (err, result) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                for(let element of result) {
+                    let itemRet = {
+                        "item_id" : element.item_id,
+                        "item_name" : element.item_name
+                    };
+                    items.push(itemRet);
+                }
+
+                resolve(items);
+            }
+        }));
+        
+        return items;
+    }
+
+    endConnection() {
+        this._connection.end();
     }
 }

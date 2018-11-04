@@ -55,11 +55,12 @@ wrapper.getMostBoughtItems(-1).then((result) => {
     console.log(result);
     //console.log("reached");
 });
-console.log("reached");
 // getFollowers(514, 2);
+wrapper.getItemsFromIDs(2, 4).then((result) => {
+    console.log("This shows the ITEMS");
+    console.log(result);
+});
 /*wrapper.getAllUserInfo(514).then((result) => {
     console.log("This is the ALL USER INFO array")
     console.log(result);
 });*/
-
-console.log("reached");
