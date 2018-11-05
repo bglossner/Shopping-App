@@ -35,6 +35,7 @@ def make_json_array(name, l):
 
 def makeUser(start, id, users, names):
     likes = list(map(lambda x: str(x), list(range(1, 9))))
+    buys = list(map(lambda x: str(x), list(range(1, 9))))
     num_followers = random.randint(0, len(users) - 1)
     name = names[int(id) - start]
     followers = users[:num_followers]
@@ -45,7 +46,7 @@ def makeUser(start, id, users, names):
     num_likes = random.randint(0, len(likes))
     num_buys = random.randint(0, len(likes))
     like_l = likes[:num_likes]
-    buy_l = likes[:num_buys]
+    buy_l = buys[:num_buys]
     construction = "{\n\t" + "\"id\" : \"{}\",\n{},\n\t\"username\" : \"{}\",\n{},\n{}\n".format(
         id, make_json_array("followers", followers), name, make_json_array("likes",like_l), make_json_array("buys",buy_l)) + "}"
     return (construction, followers)

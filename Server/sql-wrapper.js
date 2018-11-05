@@ -286,7 +286,6 @@ module.exports = class DataAccess {
     async getItemsFromIDs(start, limit) {
         let items = [];
         let myQuery = ``;
-        console.log("HELLOO")
         if(limit == -1) {
             myQuery = `SELECT * FROM Items WHERE item_id >= ${start}`;
         }
