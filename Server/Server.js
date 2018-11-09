@@ -22,10 +22,8 @@ app.get('/', function (req, res) {
 });
 
 app.get('/items/:itemId/:numItems', (req, res) => {
-    console.log(req.params)
-    console.log("hi");
-    let itemId = req.params.itemId
-    let numItems = req.params.numItems
+    let itemId = req.params.itemId;
+    let numItems = req.params.numItems;
 
     //get data
     wrapper.getItemsFromIDs(itemId, numItems).then((result) => {
@@ -34,27 +32,47 @@ app.get('/items/:itemId/:numItems', (req, res) => {
 });
 
 
-app.get('/followers', (req, res) => {
-    let userId = req.headers.userId
+app.get('/followers/:userId/:numFollowers', (req, res) => {
+    let userId = req.params.userId
     let numFollowers = req.params.numFollowers
-    let friendIds = []
-    connection.query('SELECT friend_id from Friends WHERE user_id=' + userId, (err, result, fields) => {
-        if (err) {
-            console.log(err)
-        }
-        result.forEach((item) => {
-            friendIds.push(item.friend_id)
-    })
-    console.log(friendIds)
 
-})})
+    //get followers
+    wrapper.getFollowersFromId(userId, numFollowers).then((result) => {
+        res.send(result);
+    });
+});
 
+app.get('/users/:method/:userId/:numUsers', (req, res) => {
+    let method = req.params.method;
+    let userId = req.params.userId;
+    let numUsers = req.params.numUsers;
+    if(!method) {
+        wrapper.getUsersFromIDs(userId, numUsers).then((result) => {
+            res.send(result);
+        });
+    }
+    else {
+        wrapper.getUsersFromAlpha(numUsers).then((result) => {
+            res.send(result);
+        });
+    }
+});
 
-
-app.get('/users', (req, res) => {
-    userId = req.headers.userId
-    numUsers = req.params.numUsers
-})
+app.get('/items/likes/:itemId', (req, res) => {
+    let method = req.params.methpd;
+    let userId = req.params.userId;
+    let numUsers = req.params.numUsers;
+    if(!method) {
+        wrapper.getUsersFromIDs(userId, numUsers).then((result) => {
+            res.send(result);
+        });
+    }
+    else {
+        wrapper.getUsersFromAlpha(numUsers).then((result) => {
+            res.send(result);
+        });
+    }
+});
 
 app.listen(8000, '127.0.0.1', () => {
     console.log("Connected to port 8000");

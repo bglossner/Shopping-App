@@ -161,26 +161,34 @@ module.exports = class DataAccess {
     }
 
     async getAllUserInfo(user_id) {
-        let userObject;
-        await new Promise((resolve, reject) =>
-            getUsersFromIDs(user_id, 1).then((users) => {
-                let user = users[0];
-                getFollowersFromId(user_id, -1).then((followers) => {
-                    getBoughtItems(user_id, -1).then((boughtItems) => {
-                        getLikedItems(user_id, -1).then((likedItems) => {
-                            resolve(users);
-                            userObject = {
-                                "user_id" : user["user_id"],
-                                "username" : user["username"],
-                                "followers" : followers,
-                                "bought_items" : boughtItems,
-                                "liked_items" : likedItems
-                            }
-                        });
-                    });
-                });
-            }
-        ));
+        let userObject, user, followers, boughtItems, likedItems;
+        await new Promise((resolve, reject) => {
+            this.getUsersFromIDs(user_id, 1).then((usersRet) => {
+                console.log(usersRet);
+                user = usersRet;
+                console.log("here4")
+            });
+            this.getFollowersFromId(user_id, -1).then((followersRet) => {
+                followers = followersRet;
+                console.log("here3")
+            });
+            this.getBoughtItems(user_id, -1).then((boughtItemsRet) => {
+                boughtItems = boughtItemsRet;
+                console.log("here2")
+            });
+            this.getLikedItems(user_id, -1).then((likedItemsRet) => {
+                likedItems = likedItemsRet;
+                console.log("here")
+                userObject = {
+                    "user_id" : user["user_id"],
+                    "username" : user["username"],
+                    "followers" : followers,
+                    "bought_items" : boughtItems,
+                    "liked_items" : likedItems
+                };
+                resolve(1);
+            });
+        });
         
         return userObject;
     }

@@ -60,6 +60,7 @@ wrapper.getItemsFromIDs(2, 4).then((result) => {
     console.log("This shows the ITEMS");
     console.log(result);
 });
+console.log(wrapper.getAllUserInfo(514));
 /*wrapper.getAllUserInfo(514).then((result) => {
     console.log("This is the ALL USER INFO array")
     console.log(result);
